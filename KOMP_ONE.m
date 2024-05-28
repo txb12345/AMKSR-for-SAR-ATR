@@ -1,4 +1,4 @@
-function [x] = KOMP_ONE_singleview(flag, zTY, YTY, A, tr_dimension, sparsity)
+function [x] = KOMP_ONE(flag, zTY, YTY, A, tr_dimension, sparsity)
 
 dimension = tr_dimension;
 x = zeros(dimension, 1);
