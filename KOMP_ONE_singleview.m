@@ -1,11 +1,5 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% This function is invoked by KKSVD(). It is utilized to double sparse coding
-% the input signal z, where Y is the original training sample matrix,  
-% YTY(i, j), zTY represent K(Yi, Yj), K(z, Yt) respectively. A is the matrix 
-%where Phi(D) = Phi(Y) * A. During dictionary learning flag should be 0
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [x] = KOMP_ONE_singleview(flag, zTY, YTY, A, tr_dimension, sparsity)
+function [x] = KOMP_ONE(flag, zTY, YTY, A, tr_dimension, sparsity)
 
 dimension = tr_dimension;
 x = zeros(dimension, 1);
