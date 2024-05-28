@@ -52,9 +52,9 @@ sparsity = 12;
 for m = 1:num_kernels
     residual{m} = zeros(length(tr_label_view),num_class);
 end
-% 权重参数
+% initialize
 beta_group = zeros(num_kernels,1);
-beta_group(12) = 1; %
+beta_group(randi([1,20])) = 1;
 for t = 1:10
     for p = 1:num_kernels
         YTY_kernel{p} = zeros(dimension,dimension);
@@ -75,7 +75,7 @@ for t = 1:10
     for m = 1:num_kernels
         YTY = YTY + beta_group(m) * YTY_kernel{m};
     end
-    %训练阶段   
+    %training 
     for j = 1:dimension   
         
         zTY = zeros(1, dimension);
@@ -175,12 +175,12 @@ for t = 1:10
 
     miss_choose_kernel_value = [];
     for i = 1:num_kernels
-        miss_choose_kernel_value(i) = miss_choose_kernel_group(alignment_sort_index(i));%使准确率按照对齐分数顺序进行排序
+        miss_choose_kernel_value(i) = miss_choose_kernel_group(alignment_sort_index(i));%
     end
     mu = 0.02;
-    [miss_choose_kernel_value_max,miss_choose_kernel_index_max] = max(miss_choose_kernel_value);%找到最大准确率所对应的核索引
+    [miss_choose_kernel_value_max,miss_choose_kernel_index_max] = max(miss_choose_kernel_value);%
     for i = 1:miss_choose_kernel_index_max
-        if miss_choose_kernel_value(i) + mu > miss_choose_kernel_value_max %识别准确率
+        if miss_choose_kernel_value(i) + mu > miss_choose_kernel_value_max %
             miss_choose_kernel_index_selected = i;
             break;
         end
@@ -269,17 +269,17 @@ function [dat, lab, index] = read_dat(src)
     for i = 1:length(src)  
        %src(i)
        img_path_list = dir(src(i));
-       img_num = length(img_path_list);%获取图像总数量 
-       for j = 3:img_num %逐一读取图像
-            image_name = img_path_list(j).name;% 图像名
+       img_num = length(img_path_list);%
+       for j = 3:img_num 
+            image_name = img_path_list(j).name;
             %fprintf('%s\n',image_name);
             %if strcmp(image_name(end-3:end), 'jpeg')
             image_path = strcat(src(i),'\', image_name);
 	        image =  imread(image_path);
             [width,height] = size(image);
-            lab = [lab;i];%创建标签
+            lab = [lab;i];
             index = index + 1;
-            left = floor((width - new_width) / 2);%取整
+            left = floor((width - new_width) / 2);
             top = floor((height - new_height) / 2);
             right = floor((width + new_width) / 2);
             bottom = floor((height + new_height) / 2);
