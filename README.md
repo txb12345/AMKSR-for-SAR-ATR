@@ -1,6 +1,6 @@
 # AMKSR-for-SAR-ATR
 
-Note that the reviewer should first download the data sets under various scenarios to the same directory as the source code. Then, the reviewer can run the source code of AMKSR on different data sets to verify the recognition results of AMKSR.
+Note that the reviewer should first download the data sets under various scenarios to the same directory as the source code. Then, the reviewer can run the source code of AMKSR on different data sets to observe the recognition results of AMKSR.
 
 The demo.m provides a case study about the entire training and test process of AMKSR. 
 
