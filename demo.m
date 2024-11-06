@@ -85,8 +85,8 @@ for j = 1:num_views
     % % data_reduce
     tr_dat_original = (tr_dat_view_new{j})';
     tt_dat_original = (tt_dat_view_new{j})';
-    tr_dat_ACD_pca_view{j} = tr_dat_original(:,1:100); %acquring the training data features
-    tt_dat_ACD_pca_view{j} = tt_dat_original(:,1:100); %acquring the test data features
+    tr_dat_ACD_pca_view{j} = tr_dat_original(:,1:100); %acquire the training data features
+    tt_dat_ACD_pca_view{j} = tt_dat_original(:,1:100); %acquire the test data features
 end
 
 idx_class = unique(tr_label);
@@ -136,7 +136,7 @@ for p = 1:num_kernels
     for k1 = 1:dimension
         for k2 = 1:dimension
             for i = 1:num_views
-                YTY_view{i}(k1, k2) = kernel_function(tr_dat_view{i}(:, k1),tr_dat_view{i}(:, k2),p);
+                YTY_view{i}(k1, k2) = kernel_function(tr_dat_view{i}(:, k1),tr_dat_view{i}(:, k2),p);  %calculate the kernel matrices of different views
                 YTY_view{i}(k2, k1) = YTY_view{i}(k1, k2);
                 YTY_kernel{p}(k1, k2) = YTY_kernel{p}(k1, k2) + YTY_view{i}(k1, k2); 
             end
@@ -177,21 +177,21 @@ for t = 1 : 5
             zTz_train = zTz_train + beta_group(p) * zTz_{p};
             
         end
-        x_composite = KOMP_ONE(0, zTY, YTY, A, sparsity); 
+        x_composite = KOMP_ONE(0, zTY, YTY, A, sparsity); % use the KOMP to optimize algorithm
         for i = 1:num_class
-            code_composite = x_composite(tr_label_view == i); %code is a coefficient vector 
-            residual_composite(j, i) = zTz_train - 2 * zTY(tr_label_view == i) * code_composite + code_composite' * YTY(tr_label_view == i, tr_label_view == i) * code_composite;
+            code_composite = x_composite(tr_label_view == i); %code is the sparse code
+            residual_composite(j, i) = zTz_train - 2 * zTY(tr_label_view == i) * code_composite + code_composite' * YTY(tr_label_view == i, tr_label_view == i) * code_composite; %calculate the reconstruction error of the composite kernel
         end
         for i = 1:num_class
             for m = 1:num_kernels
-                code{m} = x_composite(tr_label_view == i); %code is a coefficient vector 
-                residual{m}(j, i) = zTz_{m} - 2 * zTY_kernel{m}(tr_label_view == i) * code{m} + code{m}' *  YTY_kernel{m}(tr_label_view == i, tr_label_view == i) * code{m};
+                code{m} = x_composite(tr_label_view == i); %code is the sparse code
+                residual{m}(j, i) = zTz_{m} - 2 * zTY_kernel{m}(tr_label_view == i) * code{m} + code{m}' *  YTY_kernel{m}(tr_label_view == i, tr_label_view == i) * code{m}; %calculate the reconstruction error of each kernel
             end
         end
         
     end    
     for m = 1:num_kernels
-        [value{m}, index{m}] = min(residual{m} , [], 2); 
+        [value{m}, index{m}] = min(residual{m} , [], 2); % acquire the minimal reconstruction error
     end
     [value_composite, index_composite] = min(residual_composite, [], 2);
     current_kernel = [];current_kernel_index = [];
@@ -246,24 +246,24 @@ for t = 1 : 5
         kernel_accuracy = sum(choose_kernel{m}(current_kernel_index))/miss_current_kernel_composite;
         miss_choose_kernel_group = [miss_choose_kernel_group, kernel_accuracy];
     end
-
+    %%%%%%%%%%%%%%%%%%%% Algorithm 1 in the paper %%%%%%%%%%%%%%%%%%%%%%%%%%
     miss_choose_kernel_value = [];
     for i = 1:num_kernels
-        miss_choose_kernel_value(i) = miss_choose_kernel_group(alignment_sort_index(i));%使准确率按照对齐分数顺序进行排序
+        miss_choose_kernel_value(i) = miss_choose_kernel_group(alignment_sort_index(i));%sort according to the recognition scores
     end
     mu = 0.02;
-    [miss_choose_kernel_value_max,miss_choose_kernel_index_max] = max(miss_choose_kernel_value);%找到最大准确率所对应的核索引
+    [miss_choose_kernel_value_max,miss_choose_kernel_index_max] = max(miss_choose_kernel_value);%find the index of the maximal recognition score
     for i = 1:miss_choose_kernel_index_max
-        if miss_choose_kernel_value(i) + mu > miss_choose_kernel_value_max %识别准确率
+        if miss_choose_kernel_value(i) + mu > miss_choose_kernel_value_max 
             miss_choose_kernel_index_selected = i;
             break;
         end
     end 
     choose_kernel_index = alignment_sort_index(miss_choose_kernel_index_max);
     disp(choose_kernel_index)
-
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     Wnewkernel = sum(double(choose_kernel{choose_kernel_index}&(1-current_kernel)))/sum(double((1-choose_kernel{choose_kernel_index})|(1-current_kernel)));
-    Wcurrentkernel = sum(double((1-choose_kernel{choose_kernel_index})&current_kernel))/sum(double((1-choose_kernel{choose_kernel_index})|(1-current_kernel)));
+    Wcurrentkernel = sum(double((1-choose_kernel{choose_kernel_index})&current_kernel))/sum(double((1-choose_kernel{choose_kernel_index})|(1-current_kernel))); %calculate the weights of dfferent kernels
   
     %update weights
     beta_group_sum = 0;
@@ -280,7 +280,7 @@ for t = 1 : 5
         beta_group(i) = beta_group(i)/beta_group_sum;         
     end   
     %calculate error
-    beta_group_error(t) = sqrt(sum((beta_group_previous - beta_group).^2));
+    beta_group_error(t) = sqrt(sum((beta_group_previous - beta_group).^2));  % determine whether convergence has occurred according to weight errors
     
 end
 % test phase
@@ -318,8 +318,8 @@ for j = 1:length(tt_label_view)
     [x_test] = KOMP_ONE(0, zTY_test, YTY, A, sparsity);
     %Calculation of K(z, z)
     for i = 1:num_class       
-        code_test = x_test(tr_label_view == i); %code is a coefficient vector 
-        residual_test(j, i) = zTz_test - 2 * zTY_test(tr_label_view == i) * code_test + code_test' * YTY(tr_label_view == i, tr_label_view == i) * code_test;
+        code_test = x_test(tr_label_view == i); %code is the sparse code
+        residual_test(j, i) = zTz_test - 2 * zTY_test(tr_label_view == i) * code_test + code_test' * YTY(tr_label_view == i, tr_label_view == i) * code_test; %calculate the reconstruction error
       
     end
     toc  
