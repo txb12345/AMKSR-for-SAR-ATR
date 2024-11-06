@@ -85,8 +85,8 @@ for j = 1:num_views
     % % data_reduce
     tr_dat_original = (tr_dat_view_new{j})';
     tt_dat_original = (tt_dat_view_new{j})';
-    tr_dat_ACD_pca_view{j} = tr_dat_original(:,1:100); %acquring the training and training data
-    tt_dat_ACD_pca_view{j} = tt_dat_original(:,1:100); %acquring the training and test data
+    tr_dat_ACD_pca_view{j} = tr_dat_original(:,1:100); %acquring the training data features
+    tt_dat_ACD_pca_view{j} = tt_dat_original(:,1:100); %acquring the test data features
 end
 
 idx_class = unique(tr_label);
