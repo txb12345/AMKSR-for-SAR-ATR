@@ -152,7 +152,7 @@ end
 % training phase
 beta_group = zeros(num_kernels,1);
 beta_group(15) = 1;
-for t = 1:10
+for t = 1 : 5
     YTY = zeros(dimension, dimension);       
     for m = 1:num_kernels
         YTY = YTY + beta_group(m) * YTY_kernel{m};
